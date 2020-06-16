@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
+<script src="js/jsplumb.min.js"></script>
+
+
+<body>
+<div class="page">
+    <div class="tools">
+        <div class="base_info_title">
+            <div>
+                <span>流程代码：</span><span>authorApproval</span>
+            </div>
+            <div>
+                <span>流程名称：</span><span>测试流程</span>
+            </div>
+            <div onclick="showBaseInfo()" class="check_more">
+                <button class="modify_configuration">修改配置</button>
+            </div>
+            <div>
+                <button onclick="saveInfo()" class="tool_button saveInfo">保存</button>
+            </div>
+        </div>
+
+        <!--    <button class="tool_button">格式化</button>-->
+    </div>
+    <div class="container_flex">
+        <div id="container" class="container">
+            <div id="diagramContainer">
+                <div class="tool_buttons">
+
+                    <div onmousedown="generateItem()" class="mode_button addmode">
+                        <div>
+                            <span class="addNode_icon"></span>新增节点
+                        </div>
+                    </div>
+                    <div class="mode_button dragmode" onclick="setDragmode()">
+                        <div>
+                            <span class="dragmode_icon"></span>拖拽模式
+                        </div>
+                    </div>
+                    <div class="mode_button  linkmode" onclick="setLinkmode()">
+                        <div><span class="linemode_icon"></span>连线模式</div>
+                    </div>
+                    <div class="mode_button" onclick="resetWorkflow()">
+                        <div><span class="resetmode_icon"></span>流程重置</div>
+                    </div>
+                    <div class="mode_button fullScreen" onclick="showFullScreen()">
+                        <div><span class="fullScreenmode_icon"></span>全屏模式</div>
+                    </div>
+                </div>
+                <div onmousedown="resetDragFlag(this)" id="start" class="item start">
+                    <div class="filter_item start_item"></div>
+                    开始
+                </div>
+                <div onmousedown="resetDragFlag(this)" id="end" class="item end">
+                    <div class="end_item"></div>
+                    结束
+                </div>
+            </div>
+            <div class="masker" onclick="hidePopup()">
+                <div id="popup_nodeInfo" class="popups">
+                    <div class="form_title">节点信息</div>
+                    <div class="close_popup" onclick="closePopup()"></div>
+                    <div class="operator_button">
+
+                        <button>更新节点信息</button>
+                        <button onclick="deleteNode()">删除节点</button>
+                    </div>
+                    <div class="form_fields">
+                        <ul>
+                            <li>
+                                <div>
+                                    <span class="field_title">名称：</span><input class="field_value">
+                                </div>
+                                <div>
+                                    <span class="field_title">类型：</span><input class="field_value">
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <span class="field_title">通过比例(%)：</span><input class="field_value">
+                                </div>
+                                <div>
+                                    <span class="field_title">处理用户：</span><input class="field_value">
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <span class="field_title">处理角色：</span><input class="field_value">
+                                </div>
+                                <div>
+                                    <span class="field_title">Action：</span><input class="field_value">
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <span class="field_title">顺序：</span><input class="field_value">
+                                </div>
+                                <div>
+                                    <span class="field_title">坐标：</span><span class="pos">X:123</span><span
+                                        class="pos">Y:456</span>
+                                </div>
+                            <li>
+                            <li style="justify-content: space-between ">
+                                <div>
+                                    <span class="field_title">前加签：</span><input type="checkbox" id="addBefore"
+                                                                                class="field_value"><label
+                                        class="square"
+                                        for="addBefore"></label>
+                                </div>
+                                <div>
+                                    <span class="field_title">后加签：</span><input type="checkbox" id="addAfter"
+                                                                                class="field_value"><label
+                                        class="square"
+                                        for="addAfter"></label>
+                                </div>
+                                <div>
+                                    <span class="field_title">转签：</span><input type="checkbox" id="tansfer"
+                                                                               class="field_value"><label
+                                        class="square" for="tansfer"></label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="popup_routeInfo" class="popups">
+                    <div class="form_title">路由信息</div>
+                    <div class="close_popup" onclick="closePopup()"></div>
+                    <div class="operator_button">
+
+                        <button>更新路由信息</button>
+                        <button onclick="deleteRoute()">删除路由</button>
+                    </div>
+                    <div class="form_fields">
+                        <ul>
+                            <li>
+                                <div>
+                                    <span class="field_title">当前节点：</span><input class="field_value">
+                                </div>
+                                <div>
+                                    <span class="field_title">下一节点：</span><input class="field_value">
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <span class="field_title">类型：</span><input class="field_value">
+                                </div>
+                                <div>
+                                    <span class="field_title">路由条件：</span><input class="field_value">
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="dialog popups">
+                    <p class="dialog_title">弹出确认信息</p>
+                    <div class="dialog_content">流程重置将会删除您创建的节点及连线，是否确认操作？</div>
+                    <div class="dialog_buttons">
+                        <div><span onclick="cancelDialog()">取消</span><span onclick="doresetworkflow()">确认</span></div>
+                    </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+    <div onclick="closeBaseInfoPopup()" class="base_info_container">
+        <div id="popup_baseInfo" class="popups">
+            <div class="form_title">基本信息</div>
+            <div class="close_popup" onclick="closeBaseInfoPopup()"></div>
+            <div class="operator_button">
+                <button>更新基本信息</button>
+            </div>
+            <div class="form_fields rePaint">
+                <ul>
+                    <li>
+                        <div>
+                            <span class="field_title">流程代码：</span><input class="field_value">
+                        </div>
+                        <div>
+                            <span class="field_title">流程名称：</span><input class="field_value">
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="field_title">处理界面：</span><input class="field_value">
+                        </div>
+                        <div>
+                            <span class="field_title">数据对象：</span><input class="field_value">
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="field_title">状态字段：</span><input class="field_value">
+                        </div>
+                        <div>
+                            <span class="field_title">状态字典：</span><input class="field_value">
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="field_title">单号字段：</span><input class="field_value">
+                        </div>
+                        <div>
+                            <span class="field_title">节点字段：</span><input class="field_value">
+                        </div>
+                    <li>
+                    <li>
+                        <div>
+                            <span class="field_title">标题表达式：</span><input class="field_value">
+                        </div>
+                        <div>
+                            <span class="field_title">撤回回滚值：</span><input class="field_value">
+                        </div>
+                    <li>
+                    <li>
+                        <div>
+                            <span class="field_title">备注：</span><textarea class="textarea_field"></textarea>
+                        </div>
+
+                    <li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+<style>
+    #popup_nodeInfo, #popup_routeInfo {
+        display: none;
+        position: absolute;
+        width: 700px;
+        height: 400px;
+        top: 20%;
+        left: 20%;
+        background: white;
+        border: 2px solid #DCDCDC;
+
+    }
+
+    #popup_baseInfo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 800px;
+        height: 500px;
+        background: white;
+        border: 2px solid #DCDCDC;
+
+    }
+
+
+    .close_popup {
+        width: 20px;
+        height: 20px;
+        background: url("img/close.png") no-repeat;
+        background-size: 20px 20px;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+
+
+    .base_info_title > div {
+        display: inline-block;
+        margin-right: 20px;
+    }
+
+    .base_info_title span {
+        font-size: 12px;
+    }
+
+    .check_more {
+        cursor: pointer;
+        color: #E5624A;
+    }
+
+    .addNode_icon {
+        vertical-align: middle;
+        margin-top: -3px;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: url("img/Add.png") no-repeat;
+        background-size: cover;
+        margin-right: 5px;
+    }
+
+    .dragmode_icon {
+        vertical-align: middle;
+        margin-top: -3px;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: url("img/dragmode.png") no-repeat;
+        background-size: cover;
+        margin-right: 5px;
+    }
+
+    .linemode_icon {
+        vertical-align: middle;
+        margin-top: -3px;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: url("img/linemode.png") no-repeat;
+        background-size: cover;
+        margin-right: 5px;
+
+    }
+
+    .resetmode_icon {
+        vertical-align: middle;
+        margin-top: -4px;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: url("img/reset.png") no-repeat;
+        background-size: cover;
+        margin-right: 5px;
+    }
+    .fullScreenmode_icon{
+        vertical-align: middle;
+        margin-top: -4px;
+        display: inline-block;
+        width: 17px;
+        height: 17px;
+        background: url("img/fullscreen.png") no-repeat;
+        background-size: contain;
+        margin-right: 5px;
+    }
+
+    .mode_active_class {
+        border-bottom: 2px solid gray !important;
+        color: #20A0FF !important;
+    }
+
+    .disabled_event {
+        display: none;
+    }
+
+    .modify_configuration {
+        width: 70px;
+        padding: 4px 5px;
+        display: inline-block;
+        border: none;
+        background: #20A0FF;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        border-radius: 2px;
+    }
+
+    .masker {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(97,97,97, .7);
+        z-index: 2001;
+
+    }
+
+
+
+</style>
+
+<style>
+
+
+    .page {
+        border: 1px solid #d3dce6;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    .dialog{
+        display: none;
+        padding: 20px;
+        position: absolute;
+        top: 15%;
+        left: 50%;
+        transform: translate(-50%);
+        background: red;
+        width: 50%;
+        height: 200px;
+        background: #FFFFFE;
+        box-shadow: 0 1px 3px rgba(0,0,0,.3);
+        border-radius: 1px;
+        box-sizing: border-box;
+    }
+    .dialog_title{
+        font-size: 16px;
+        font-weight: 700;
+        color:#1f2d3d ;
+    }
+    .dialog_content{
+        font-size: 14px;
+        color:#475669 ;
+    }
+    .dialog_buttons{
+        position: absolute;
+        bottom: 10px;
+        right: 20px;
+    }
+    .dialog_buttons>div>span{
+        margin-left: 20px;
+        border: 1px solid #c0ccda;
+        outline:0;
+        padding: 2px 6px ;
+        font-size: 14px;
+        box-sizing: border-box;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+    .dialog_buttons>div>span:nth-of-type(2){
+        background: #20A0FF;
+        color: white;
+        border: none;
+    }
+
+
+    .container_flex {
+        position: relative;
+        /*        border-bottom: 1px #E8E8E8 solid;*/
+    }
+
+    .base_info_container {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: rgba(97,97,97, .7);
+        width: 100%;
+        height: 100%;
+    }
+
+    /*label样式*/
+    input[type="checkbox"] {
+        /*
+       display: none;这样会让tab键无法选取自定义的checkbox，所以使用下面的方法
+       clip 属性剪裁绝对定位元素。
+       */
+        position: absolute;
+        clip: rect(0, 0, 0, 0)
+    }
+
+    .square::before {
+        content: '';
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: #EEE;
+        vertical-align: middle;
+        margin-right: 5px;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        transition: background ease-in .5s;
+    }
+
+    input[type="checkbox"]:checked + .square::before {
+        background-color: #20A0FF;
+        border: 3px #EEE solid;
+    }
+
+    /*====*/
+    .operator_button {
+        width: 640px;
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        display: flex;
+        justify-content: space-around;
+
+
+    }
+
+    .operator_button > button {
+        padding: 4px 5px;
+        display: inline-block;
+        border: none;
+        background: #20A0FF;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        border-radius: 2px;
+
+
+    }
+
+    input:focus {
+        outline: none;
+        border: 1px solid #20A0FF;
+    }
+
+    ul {
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        display: flex;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+
+    li > div:nth-of-type(1) {
+        margin-right: 30px;
+    }
+
+    .textarea_field {
+        width: 200px;
+        height: 22px;
+        padding: 2px 5px;
+    }
+
+    .form_title {
+        height: 40px;
+        line-height: 40px;
+        width: 100%;
+        background: #F4F6FC;
+        text-align: center;
+    }
+
+    .pos {
+        text-align: center;
+        display: inline-block;
+        font-size: 12px;
+        width: 40px;
+        border: #DCDCDC 1px solid;
+        margin-right: 10px;
+        border-radius: 100px;
+    }
+
+    .tools {
+        position: relative;
+        padding: 10px 0px;
+        border-bottom: 1px #d3dce6 solid;
+        padding-left: 10px;
+        background: #F4F6FC;
+
+    }
+
+    .mode_button {
+        text-align: center;
+        height: 20px;
+        width: 100px;
+        line-height: 20px;
+        border: none;
+        cursor: pointer;
+        transition: .25s;
+        color: #58595B;
+        font-size: 14px;
+    }
+
+
+    .mode_button > div {
+        padding: 10px;
+    }
+
+    .mode_button > div:hover {
+        color: gray;
+        color: #20A0FF;
+    }
+
+    .container {
+        position: relative;
+        width: 100%;
+    }
+
+    .form_fields {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 640px;
+    }
+
+    .rePaint {
+        top: 50%;
+    }
+
+    .form_fields > div {
+        padding-bottom: 10px;
+    }
+
+    .field_title {
+        display: inline-block;
+        font-size: 12px;
+        width: 100px;
+        text-align: right;
+    }
+
+    .field_value {
+        box-sizing: border-box;
+        height: 22px;
+        background: none;
+        border-radius: 2px;
+        padding: 2px 5px;
+        outline: 0;
+        border: 1px solid #c0ccda;
+        width: 200px;
+        font-size: 12px;
+
+    }
+
+    #diagramContainer {
+        position: relative;
+        height:100vh;
+        background: white;
+    }
+
+    .item {
+        position: absolute;
+        width: 120px;
+        height: 40px;
+        border: 2px solid gainsboro;
+        border-radius: 3px;
+        line-height: 40px;
+        font-size: 12px;
+        color: #616264;
+        cursor: pointer;
+        text-align: center;
+        background: white;
+
+    }
+
+
+    .end_item, .filter_item {
+        background: #5e6d82;
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        left: 10px;
+        transform: translate(0, -50%);
+    }
+
+    .tool_buttons {
+        display: flex;
+        height: 40px;
+        width: 100%;
+        border-bottom: 1px #d3dce6 solid;
+
+    }
+
+    .tool_buttons > div {
+        position: relative;
+    }
+
+    .tool_buttons > div:after {
+        position: absolute;
+        top: 10px;
+        height: 20px;
+        right: 0;
+        content: '';
+        width: 0;
+        border-right: solid gray 1px;
+
+    }
+
+    .saveInfo {
+        width: 70px;
+        padding: 4px 5px;
+        display: inline-block;
+        border: none;
+        background: #20A0FF;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        border-radius: 2px;
+    }
+
+    .start {
+        top: 100px;
+        left: 900px;
+    }
+
+    .end_item {
+        background: url("img/end.png") no-repeat;
+        background-size: 20px 20px;
+        cursor: pointer;
+    }
+
+    .start_item {
+        background: url("img/start.png") no-repeat;
+        background-size: 20px 20px;
+
+    }
+
+    .common_item {
+        background: url("img/share.png") no-repeat;
+        background-size: 15px 15px;
+    }
+
+    .end {
+        left: 900px;
+        top: 800px
+    }
+
+    .item:hover {
+        background: lightgray;
+        border: 2px solid #20A0FF;
+    }
+
+    .jtk-source-hover {
+        border: 2px solid #89D751;
+        background-color: white;
+        transition: .3s ease-in;
+    }
+
+    .jtk-target-hover {
+        border: 2px solid #EA473A;
+        background-color: white;
+        transition: .3s ease-in;
+    }
+
+    .jtk-drag-hover {
+        border: 2px solid #FF0000;
+        background:gainsboro;
+    }
+</style>
+	<script src="js/zoom.js"></script>
+	<script>
+		
+		document.querySelector( '#diagramContainer' ).addEventListener( 'click', function( event ) {
+		console.log("55")
+				event.preventDefault();
+				console.log(event.target)
+				zoom.to({ element: event.target });
+			} );
+	</script>
+<script>
+
+    /* 设置全局变量 */
+    var lastId;
+    var isDrop = false;
+    var currentNodeId;
+    var currentRoute;
+    var currentMode;
+    var dragFlag = false;//判断是否拖动
+    var resizeFlag;//标记是否在被拖动状态
+    var isFullScreen=false;//标记当前全屏状态
+    /*=====================方法区========================*/
+    //全屏模式切换
+    function  showFullScreen() {
+        let element = document.getElementById("container");
+        // 判断是否已经是全屏
+        // 如果是全屏，退出
+        if (isFullScreen) {
+            $(".fullScreen>div").removeClass("mode_active_class")
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        } else {    // 否则，进入全屏
+            $(".fullScreen>div").addClass("mode_active_class")
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.webkitRequestFullScreen) {
+                element.webkitRequestFullScreen();
+            } else if (element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if (element.msRequestFullscreen) {
+                // IE11
+                element.msRequestFullscreen();
+            }
+            console.log('已全屏！');
+        }
+        // 改变当前全屏状态
+        isFullScreen = !isFullScreen;
+    }
+
+    //弹窗显示
+    function resetWorkflow() {
+
+        $(".masker").fadeIn();
+        $(".dialog").fadeIn();
+    }
+    //删除已有节点和连线
+    function doresetworkflow() {
+        setDragmode();
+        let nodes = document.querySelectorAll(".common_node")
+        for (let i = 0; i < nodes.length; i++) {
+            jsPlumb.remove(nodes[i].id)
+        }
+        cancelDialog();
+    }
+    //确认弹窗关闭
+    function cancelDialog(){
+        $(".masker").fadeOut();
+        $(".dialog").fadeOut();
+    }
+
+
+
+    function closeBaseInfoPopup() {
+        $(".base_info_container").fadeOut();
+        $("#popup_baseInfo").fadeOut();
+
+    }
+
+    function hidePopup() {
+        $(".masker").fadeOut();
+        $(".popups").fadeOut();
+
+    }
+
+    function resetDragFlag(e) {
+        dragFlag = false
+        resizeFlag = true;
+        console.log("reset" + dragFlag)
+    }
+
+    //设为只能拖拽，不能连线
+    function setDragmode() {
+        if (currentMode == "dragmode") {
+            console.log("已经是dragmode")
+            return;
+        }
+        currentMode = "dragmode"
+        $(".dragmode>div").addClass("mode_active_class")
+        $(".linkmode>div").removeClass("mode_active_class")
+        $(".jtk-endpoint").addClass("disabled_event")
+        jsPlumb.unmakeEverySource();
+        jsPlumb.unmakeEveryTarget();
+        let nodes = document.querySelectorAll(".item")
+        for (let i = 0; i < nodes.length; i++) {
+            let id = nodes[i].id;
+            jsPlumb.setDraggable(id, true)
+        }
+    }
+
+    //只能连线，不能拖拽,禁用新增节点
+    function setLinkmode() {
+        if (currentMode == "linkmode") {
+            console.log("已经是linkmode")
+            return;
+        }
+        currentMode = "linkmode"
+        $(".dragmode>div").removeClass("mode_active_class")
+        $(".linkmode>div").addClass("mode_active_class")
+        $(".jtk-endpoint").removeClass("disabled_event")
+
+        let nodes = document.querySelectorAll(".item")
+
+        jsPlumb.makeSource('start', {
+            anchor: "Continuous",
+        })
+        jsPlumb.makeTarget('end', {
+            anchor: "Continuous",
+        })
+        for (let i = 0; i < nodes.length; i++) {
+            let id = nodes[i].id;
+            jsPlumb.toggleDraggable(id)
+            if (id != "start" && id != "end") {
+                jsPlumb.addEndpoints(id, [{
+                    anchor: "Top",
+                }, {
+                    anchor: "Bottom",
+                }, {
+                    anchor: "Left",
+                }, {
+                    anchor: "Right",
+                }], {isSource: true, isTarget: false})
+
+                jsPlumb.makeTarget(id, {
+                    anchor: "Continuous"
+                })
+
+            }
+        }
+
+    }
+
+
+    function getNodeInfo(e) {
+        if (currentMode == "linkmode") {
+            //切换显示类型
+            $(".masker").css("display", "block")
+            $("#popup_nodeInfo").css("display", "block")
+            currentNodeId = e.id;
+        }
+        if (dragFlag) {
+            return;
+        }
+        //切换显示类型
+        $(".masker").css("display", "block")
+        $("#popup_nodeInfo").css("display", "block")
+        currentNodeId = e.id;
+    }
+    //删除节点
+    function deleteNode() {
+        const error = [null, undefined, ""];
+        if (error.indexOf(currentNodeId) == -1) {
+            jsPlumb.remove(currentNodeId)
+        }
+    }
+    //删除线
+    function deleteRoute() {
+        jsPlumb.deleteConnection(currentRoute)
+
+    }
+        //保存所有信息发送给后端
+    function saveInfo() {
+        let nodes = document.querySelectorAll(".common_node")
+        let list = jsPlumb.getAllConnections();
+    }
+    //生成新的节点
+    function generateItem(e) {
+        //切换到拖拉模式
+        setDragmode();
+
+        isDrop = true;
+        e = e || window.event;//要用event这个对象来获取鼠标的位置
+        console.log(e)
+        //=====生成div====
+        var childdiv = $('<div class="common_node" onmousedown="resetDragFlag(this)" onmouseup="getNodeInfo(this)"> <div class="filter_item  common_item"></div>新节点</div>');
+        lastId='child' + getTimeStamp();
+        childdiv.attr('id',lastId );
+        childdiv.addClass('item');    //添加css样式
+        childdiv.appendTo($("#diagramContainer"))
+    }
+
+    function closePopup() {
+        $(".masker").fadeOut();
+        $(".popups").fadeOut();
+
+    }
+    //显示基本信息弹窗
+    function showBaseInfo() {
+        $(".base_info_container").fadeIn();
+        $("#popup_baseInfo").css("display", "block")
+    }
+
+    //初始化基本jsPlumb配置
+    function initJsplumb() {
+        jsPlumb.importDefaults({
+            Container:"#diagramContainer",
+            DragOptions: {cursor: 'pointer', zIndex: 2000},
+            Endpoint: ["Rectangle", {width: 10, height: 10}],
+            EndpointStyle: {fill: "#F4F6FC", stroke: "#20A0FF"},
+            //ConnectionsDetachable: false,//连接是否可拆卸（使用鼠标），默认 true
+            ReattachConnections:true,//拆卸后自动重连
+            MaxConnections: 5, // 设置连接点最多可以连接几条线
+            PaintStyle: {
+                strokeWidth: 2,//线的宽度
+                stroke: "#20A0FF",//线色
+            },
+            HoverPaintStyle: {
+                stroke: "#FF0000", lineWidth: 2, gradient: {     //渐变色
+                    stops: [[0, "#89D751"]]
+                }
+            },
+            Connector: ["Flowchart", {
+                gap: 5,//gap：可选，默认为0px。在连接线的一端和连接的元素之间指定一个间隙。
+                cornerRadius: 5,//连线转向处的圆角，默认 0
+                stub: 0,//连线两端短截线的最小长度
+                alwaysRespectStubs: false,//true–固定短截线长度；false–当两个元件彼此非常接近（小于两个短截线的总和），则调整短截线。默认 false,
+                midpoint: 0.5//设置连线的中点位置，默认 0.5
+            }],
+            ConnectionOverlays: [
+                ["Arrow", {
+                    width: 15,
+                    length: 15,
+                    location: 1,//在线条上的位置，0 在起点，1 在终点，默认 0.5
+                    foldback: 1,//箭头尾部缩进程度，设置为 1 则尾部不缩进，小于 1 向内缩进，大于 1 向外突出，小于等于 0 取默认值。 默认 0.623
+                    direction: 1,//方向，从起点指向终点为 1，反之为 -1
+                    visible: true,// Boolean 是否可见，默认 true
+                }]
+
+            ]
+        });
+
+        jsPlumb.draggable('start', {containment: 'parent', grid: [10, 10]})
+        jsPlumb.draggable('end', {containment: 'parent', grid: [10, 10]})
+
+        jsPlumb.draggable('popup_nodeInfo', {containment: '.masker'})
+        jsPlumb.draggable('popup_routeInfo', {containment: '.masker'})
+
+    }
+    /*=============全局事件===============*/
+    //获取时间戳，毫秒级,作节点id唯一标识
+    function getTimeStamp(){
+        return new Date().getTime();
+    }
+
+    //阻止冒泡
+    $(function () {
+        $(".popups").click(function (event) {
+            event.stopPropagation();
+        });
+    });
+
+    //屏蔽右键默认菜单
+    document.oncontextmenu = function (event) {
+        event.preventDefault();
+    };
+
+
+    $(document).mousemove(function (e) {
+        dragFlag = true;
+        /*=================*/
+        if (resizeFlag) {
+            console.log(resizeFlag)
+            let scrollTop = $(document).scrollTop();
+            let currentHeight = parseInt($("#diagramContainer").css("height"));
+            console.log("滚动条" + scrollTop)
+            console.log("窗口坐标" + currentHeight)
+            console.log("鼠标坐标" + (e.clientY + 100))
+            //$("html,body").animate({scrollTop:1200 + "px"}, 500);
+            //防抖处理，只执行最后一次
+            clearTimeout(timer)
+            timer = setTimeout(function () {
+
+                if (e.clientY + 50 + scrollTop > currentHeight) {
+                    console.log("发生了")
+                    $("html,body").animate({scrollTop: (scrollTop + 200) + "px"});
+                    $("#diagramContainer").css("height", (currentHeight + 200) + "px")
+
+                }
+            }, 300)
+
+        }
+
+        /*======================*/
+        //是否为可移动状态
+        if (isDrop) {
+            var moveX = e.clientX - 60;//得到距离左边移动距离
+            var moveY = e.clientY - 70;//得到距离上边移动距离
+
+            $("#" + lastId).css({"top": moveY + "px", "left": moveX + "px"})
+        } else {
+            return;
+        }
+    })
+
+    $(document).mouseup(function (e) {
+        resizeFlag = false
+        //是否为可移动状态
+        if (isDrop) {
+            //切换显示类型
+            $(".masker").css("display", "block")
+            $("#popup_nodeInfo").css("display", "block")
+            jsPlumb.draggable(lastId, {containment: 'parent', grid: [10, 10]})
+            isDrop = false
+        } else {
+            return;
+        }
+    })
+
+
+    //jsPlumb启动
+    jsPlumb.ready(function () {
+        initJsplumb();
+        //页面启动时默认为拖拽模式
+        setDragmode();
+
+        jsPlumb.bind('click', function (conn, originalEvent) {
+            console.log(conn)
+            currentRoute = conn;
+            $(".masker").fadeIn();
+            $("#popup_routeInfo").fadeIn();
+        })
+
+        //connection（info, originalEvent）- 通知连接建立，建立连接时弹窗设置连线信息
+        jsPlumb.bind("connection", function (info) {
+            console.log(info)
+            $(".masker").fadeIn();
+            $("#popup_routeInfo").fadeIn();
+
+        });
+        //- 通知连接断开
+        jsPlumb.bind("connectionDetached", function (info, originalEvent) {
+            console.log("connectionDetached")
+            console.log(info)
+            console.log(originalEvent)
+        })
+        //- 通知已将现有连接的源或目标端点拖动到某个新位置
+        jsPlumb.bind("connectionMoved", function (info, originalEvent) {
+            console.log("connectionMoved")
+            console.log(info)
+            console.log(originalEvent)
+        })
+        //创建连接线之前检查,true在其它已注册事件之前触发
+        jsPlumb.bind('beforeDrop', function (conn) {
+            if (conn.sourceId === conn.targetId) {
+                console.log("禁止链接")
+                return false
+            } else {
+                return true
+            }
+
+        }, true);
+        //connectionAborted（connection，originalEvent）在连接到端点或目标元素之前放弃拖动连接
+        //connectionDrag（connection）- 正在拖动现有连接
+        //beforeDrop（info）- 删除新连接或现有连接时触发此事件
+        //beforeDetach（connection）- 断开连接时触发此事件。connection参数为刚断开的Connection。如果此拦截器返回false将会中止连接断开。
+
+    })
+
+</script>
+</html>

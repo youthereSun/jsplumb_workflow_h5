@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="../../../static/jsPlumb/jquery.js"></script>
+<script src="../../../static/jsPlumb/jsplumb.min.js"></script>
+<body>
+<div class="page" id="page">
+    <div class="saveInfo_dialog_wrong">
+        <div><div class="wrong_icon"></div><span style="color: rgb(255, 73, 73);" class="wrong_message"></span></div>
+    </div>
+    <div class="saveInfo_dialog_right">
+        <div><div class="right_icon"></div><span style="color: rgb(19, 206, 102); " class="success_message"></span></div>
+    </div>
+    <div class="tools">
+        <div class="base_info_title">
+            <div>
+                <span>流程代码：</span><span id="workflow_title_code"></span>
+            </div>
+            <div>
+                <span>流程名称：</span><span id="workflow_title_name"></span>
+            </div>
+            <div onclick="showBaseInfo()" class="check_more">
+                <button class="modify_configuration">修改配置</button>
+            </div>
+            <div>
+                <button onclick="sendData()" class="tool_button saveInfo">保存</button>
+            </div>
+            <div>
+                <button onclick="checkTable()" class="tool_button saveInfo">表单查看</button>
+            </div>
+            <div>
+                <button onclick="history.back()" class="tool_button saveInfo">返回</button>
+            </div>
+
+        </div>
+
+        <!--    <button class="tool_button">格式化</button>-->
+    </div>
+    <div class="container_flex">
+        <div id="container" class="container">
+            <div id="diagramContainer">
+                <div class="tool_buttons">
+
+                    <div onmousedown="generateItem()" class="mode_button addmode">
+                        <div>
+                            <span class="addNode_icon"></span>新增节点
+                        </div>
+                    </div>
+                    <div class="mode_button dragmode" onclick="setDragmode()">
+                        <div>
+                            <span class="dragmode_icon"></span>拖拽模式
+                        </div>
+                    </div>
+                    <div class="mode_button  linkmode" onclick="setLinkmode()">
+                        <div><span class="linemode_icon"></span>连线模式</div>
+                    </div>
+                <!--    <div class="mode_button" onclick="resetWorkflow()">
+                        <div><span class="resetmode_icon"></span>流程重置</div>
+                    </div>-->
+                    <div class="mode_button fullScreen" onclick="showFullScreen()">
+                        <div><span class="fullScreenmode_icon"></span><span class="full_word">全屏模式</span></div>
+                    </div>
+                </div>
+                <div onmousedown="resetDragFlag(this)" id="start" class="item start">
+                    <div class="filter_item start_item"></div>
+                    开始
+                </div>
+                <div onmousedown="resetDragFlag(this)" id="end" class="item end">
+                    <div class="end_item"></div>
+                    结束
+                </div>
+            </div>
+            <div class="masker" onclick="hidePopup()">
+                <div id="popup_nodeInfo" class="popups">
+                    <div class="form_title">节点信息</div>
+                    <div class="close_popup" onclick="closePopup()"></div>
+                    <div class="operator_button">
+
+                        <button onclick="updataNodeInfo()">更新节点信息</button>
+                        <button onclick="deleteNode()">删除节点</button>
+                    </div>
+                    <div class="form_fields">
+                        <ul>
+                            <li>
+                                <div>
+                                    <span class="field_title">名称</span><input id="nodeinfo_name" class="field_value">
+                                </div>
+                                <div>
+                                    <span class="field_title">类型</span>
+                                    <select id="nodeinfo_type">
+                                        <option value='action'>动作</option>
+                                        <option value='newflow'>子流程</option>
+                                        <option value='read'>阅读</option>
+                                        <option value='sign'>审批</option>
+                                        <option value='vote'>投票</option>
+                                    </select>
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <span class="field_title">通过比例(%)</span><input id="nodeinfo_passrate"
+                                                                                   class="field_value">
+                                </div>
+                                <div>
+                                    <span class="field_title">处理用户</span><input id="nodeinfo_handleuser"
+                                                                                class="field_value">
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <span class="field_title">处理角色</span><input id="nodeinfo_role" class="field_value">
+                                </div>
+
+                                <div>
+                                    <span class="field_title">计算用户</span><input id="nodeinfo_dynamic_user" class="field_value">
+                                </div>
+
+                            </li>
+                            <li>
+                                <div>
+                                    <span class="field_title">顺序</span><input id="nodeinfo_seq" class="field_value">
+                                </div>
+                                <div>
+                                    <span class="field_title">Action</span><input id="nodeinfo_action"
+                                                                                  class="field_value">
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <span class="field_title">坐标</span>
+                                    <span id="nodeinfo_position_x" class="pos">X:</span>
+                                    <span id="nodeinfo_position_y" class="pos">Y:</span>
+                                </div>
+                                <div class="selectBox" >
+                                    <div>
+                                        <span class="field_title">前加签</span>
+                                        <input type="checkbox" id="addBefore" class="field_value">
+                                        <label class="mark" for="addBefore"></label>
+                                    </div>
+                                    <div>
+                                        <span class="field_title">后加签</span><input type="checkbox" id="addAfter"
+                                                                                   class="field_value"><label
+                                            class="mark"
+                                            for="addAfter"></label>
+                                    </div>
+                                    <div>
+                                        <span class="field_title">转签</span><input type="checkbox" id="tansfer"
+                                                                                  class="field_value"><label
+                                            class="mark" for="tansfer"></label>
+                                    </div>
+                                </div>
+                            </li>
+                            <li >
+
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="popup_routeInfo" class="popups">
+                    <div class="form_title">路由信息</div>
+                    <div class="close_popup" onclick="closePopup()"></div>
+                    <div class="operator_button">
+
+                        <button onclick="updateRouteInfo()">更新路由信息</button>
+                        <button onclick="deleteRoute()">删除路由</button>
+                    </div>
+                    <div class="form_fields">
+                        <ul>
+                            <li>
+                                <div>
+                                    <span class="field_title">当前节点：</span><input id="routeinfo_currentnodename"
+                                                                                 class="field_value" readonly="readonly"
+                                                                                 style="cursor: not-allowed">
+                                </div>
+                                <div>
+                                    <span class="field_title">下一节点：</span><input id="routeinfo_nextnodename"
+                                                                                 class="field_value" readonly="readonly"
+                                                                                 style="cursor: not-allowed">
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <span class="field_title">单据状态：</span>
+                                    <select id="order_state">
+                                        <option value='' disabled selected style='display:none;'>请选择</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <span class="field_title">路由条件：</span><textarea id="routeinfo_condition"
+                                                                                    class="field_value"></textarea>
+                                </div>
+
+                            </li>
+                            <li>
+                                <div style="width: 300px">
+                                    <span class="field_title">驳回路由：</span><input type="checkbox" id="reject_route"
+                                                                                 class="field_value"><label
+                                        class="mark" for="reject_route"></label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="dialog popups">
+                    <p class="dialog_title">弹出确认信息</p>
+                    <div class="dialog_content">流程重置将会删除您创建的节点及连线，是否确认操作？</div>
+                    <div class="dialog_buttons">
+                        <div><span onclick="cancelDialog()">取消</span><span onclick="doresetworkflow()">确认</span></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+        <div onclick="closeBaseInfoPopup()" class="base_info_container">
+            <div id="popup_baseInfo" class="popups">
+                <div class="form_title">基本信息</div>
+                <div class="close_popup" onclick="closeBaseInfoPopup()"></div>
+                <div class="operator_button">
+                    <button onclick="updataBaseInfo()">更新基本信息</button>
+                </div>
+                <div class="form_fields rePaint">
+                    <ul>
+                        <li>
+                            <div>
+                                <span class="field_title">流程代码：</span><input id="baseinfo_code" class="field_value">
+                            </div>
+                            <div>
+                                <span class="field_title">流程名称：</span><input id="baseinfo_name" class="field_value">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <span class="field_title">处理界面：</span><input id="baseinfo_layout" class="field_value">
+                            </div>
+                            <div>
+                                <span class="field_title">数据对象：</span><input id="baseinfo_query" class="field_value">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <span class="field_title">状态字段：</span><input id="baseinfo_bill_status_field"
+                                                                             class="field_value">
+                            </div>
+                            <div>
+                                <span class="field_title">状态字典：</span><input id="baseinfo_bill_status_category"
+                                                                             class="field_value">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <span class="field_title">单号字段：</span><input id="baseinfo_bill_no_field"
+                                                                             class="field_value">
+                            </div>
+                            <div>
+                                <span class="field_title">节点字段：</span><input id="baseinfo_bill_node_field"
+                                                                             class="field_value">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <span class="field_title">标题表达式：</span><input id="baseinfo_title_formula"
+                                                                              class="field_value">
+                            </div>
+                            <div>
+                                <span class="field_title">撤回回滚值：</span>
+                                <select id="baseinfo_rescind_category">
+                                    <option value='' disabled selected style='display:none;'>请选择</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <span class="field_title">备注：</span><textarea id="baseinfo_remark"
+                                                                              class="textarea_field"></textarea>
+                            </div>
+                        <li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<style>
+
+    button:focus {
+        outline: 0;
+    }
+
+    #popup_nodeInfo, #popup_routeInfo {
+        display: none;
+        position: absolute;
+        width: 700px;
+        height: 300px;
+        top: 20%;
+        left: 20%;
+        background: white;
+        border: 2px solid #DCDCDC;
+    }
+    #popup_routeInfo{
+        height: 250px !important;
+    }
+
+    #popup_baseInfo {
+        position: absolute;
+        top:300px;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 800px;
+        height:350px;
+        background: white;
+        border: 2px solid #DCDCDC;
+
+    }
+
+
+    .close_popup {
+        width: 20px;
+        height: 20px;
+        background: url("../../../static/jsPlumb/img/close.png") no-repeat;
+        background-size: 20px 20px;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+
+
+    .base_info_title > div {
+        display: inline-block;
+        margin-right: 20px;
+    }
+
+    .base_info_title span {
+        font-size: 12px;
+    }
+
+    .check_more {
+        cursor: pointer;
+        color: #E5624A;
+    }
+
+    .addNode_icon {
+        vertical-align: middle;
+        margin-top: -3px;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: url("../../../static/jsPlumb/img/Add.png") no-repeat;
+        background-size: cover;
+        margin-right: 5px;
+    }
+
+    .dragmode_icon {
+        vertical-align: middle;
+        margin-top: -3px;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: url("../../../static/jsPlumb/img/dragmode.png") no-repeat;
+        background-size: cover;
+        margin-right: 5px;
+    }
+
+    .linemode_icon {
+        vertical-align: middle;
+        margin-top: -3px;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: url("../../../static/jsPlumb/img/linemode.png") no-repeat;
+        background-size: cover;
+        margin-right: 5px;
+
+    }
+
+    .resetmode_icon {
+        vertical-align: middle;
+        margin-top: -4px;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        background: url("../../../static/jsPlumb/img/reset.png") no-repeat;
+        background-size: cover;
+        margin-right: 5px;
+    }
+
+    .fullScreenmode_icon {
+        vertical-align: middle;
+        margin-top: -4px;
+        display: inline-block;
+        width: 17px;
+        height: 17px;
+        background: url("../../../static/jsPlumb/img/fullscreen.png") no-repeat;
+        background-size: contain;
+        margin-right: 5px;
+    }
+
+    .mode_active_class {
+        border-bottom: 2px solid gray !important;
+        color: #20A0FF !important;
+    }
+
+    .disabled_event {
+        visibility: hidden;
+        /*     display: none;*/
+    }
+
+    .modify_configuration {
+        width: 70px;
+        padding: 4px 5px;
+        display: inline-block;
+        border: none;
+        background: #20A0FF;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        border-radius: 2px;
+    }
+
+    .masker {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(97, 97, 97, .7);
+        z-index: 2001;
+
+    }
+
+    #nodeinfo_type, #order_state, #baseinfo_rescind_category {
+        box-sizing: border-box;
+        height: 22px;
+        background: none;
+        outline: 0;
+        border: 1px solid #c0ccda;
+        width: 200px;
+        font-size: 12px;
+        margin-left: -4px;
+    }
+
+    option {
+        outline: 0;
+        border: 1px solid #c0ccda;
+    }
+
+
+</style>
+<style>
+
+    .page {
+        border: 1px solid #d3dce6;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    .saveInfo_dialog_wrong{
+        display: none;
+        padding: 10px 12px;
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translate(-50%);
+        background: rgb(254, 240, 240);
+        z-index: 9999;
+
+    }
+    .saveInfo_dialog_right{
+        display: none;
+        padding: 10px 12px;
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translate(-50%);
+        background: #F0F9EB;
+        z-index: 9999;
+    }
+    .wrong_icon{
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: url("../../../static/jsPlumb/img/wrong_icon.png") no-repeat;
+        background-size: cover;
+        cursor: pointer;
+        vertical-align: middle;
+        margin-top: -3px;
+        margin-right: 10px;
+    }
+    .right_icon{
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: url("../../../static/jsPlumb/img/right_icon.png") no-repeat;
+        background-size: cover;
+        cursor: pointer;
+        vertical-align: middle;
+        margin-top: -3px;
+        margin-right: 10px;
+    }
+
+    .dialog {
+        display: none;
+        padding: 20px;
+        position: absolute;
+        top: 15%;
+        left: 50%;
+        transform: translate(-50%);
+        width: 50%;
+        height: 200px;
+        background: #FFFFFE;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+        border-radius: 1px;
+        box-sizing: border-box;
+    }
+
+    .dialog_title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1f2d3d;
+    }
+
+    .dialog_content {
+        font-size: 14px;
+        color: #475669;
+    }
+
+    .dialog_buttons {
+        position: absolute;
+        bottom: 10px;
+        right: 20px;
+    }
+
+    .dialog_buttons > div > span {
+        margin-left: 20px;
+        border: 1px solid #c0ccda;
+        outline: 0;
+        padding: 2px 6px;
+        font-size: 14px;
+        box-sizing: border-box;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+
+    .dialog_buttons > div > span:nth-of-type(2) {
+        background: #20A0FF;
+        color: white;
+        border: none;
+    }
+
+
+    .container_flex {
+        position: relative;
+        /*        border-bottom: 1px #E8E8E8 solid;*/
+    }
+
+    .base_info_container {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: rgba(97, 97, 97, .7);
+        width: 100%;
+        height: 100%;
+    }
+
+    /*label样式*/
+    input[type="checkbox"] {
+        /*
+       display: none;这样会让tab键无法选取自定义的checkbox，所以使用下面的方法
+       clip 属性剪裁绝对定位元素。
+       */
+        position: absolute;
+        clip: rect(0, 0, 0, 0)
+    }
+
+    .mark {
+        position: relative;
+    }
+
+    .mark::before {
+        content: '\a0';
+        position: absolute;
+        top: 3px;
+        left: 0;
+        border: 1px solid ;
+        border-color: rgb(132, 146, 166);
+        text-align: center;
+        width: 16px;
+        height: 16px;
+        font-weight: bold;
+        border-radius: 2px;
+
+    }
+
+    input[type="checkbox"]:checked + .mark::before {
+        content: '\2713';
+        color: white;
+        width: 16px;
+        height: 16px;
+        background: #20A0FF;
+        font-size: 12px;
+        border-color: #20A0FF;
+    }
+
+    /*====*/
+    .operator_button {
+        width: 640px;
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .operator_button > button {
+        padding: 4px 5px;
+        display: inline-block;
+        border: none;
+        background: #20A0FF;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        border-radius: 2px;
+
+
+    }
+
+    input:focus {
+        outline: none;
+        border: 1px solid #20A0FF;
+    }
+
+    ul {
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        display: flex;
+        padding: 5px 0px;
+    }
+
+
+    .textarea_field {
+        width: 200px;
+        height: 22px;
+        padding: 2px 5px;
+    }
+
+    .form_title {
+        height: 40px;
+        line-height: 40px;
+        width: 100%;
+        background: #F4F6FC;
+        text-align: center;
+    }
+
+    .pos {
+        text-align: center;
+        display: inline-block;
+        font-size: 12px;
+        width: 70px;
+        border:  1px solid #c0ccda;
+        border-radius: 2px;
+        padding: 2px;
+        margin-right: 20px;
+    }
+
+    .tools {
+        position: relative;
+        padding: 10px 0px;
+        border-bottom: 1px #d3dce6 solid;
+        padding-left: 10px;
+        background: #F4F6FC;
+
+    }
+
+    .mode_button {
+        text-align: center;
+        height: 20px;
+        width: 100px;
+        line-height: 20px;
+        border: none;
+        cursor: pointer;
+        transition: .25s;
+        color: #58595B;
+        font-size: 14px;
+    }
+
+
+    .mode_button > div {
+        padding: 10px;
+    }
+
+    .mode_button > div:hover {
+        color: gray;
+        color: #20A0FF;
+    }
+
+    .container {
+        position: relative;
+        width: 100%;
+    }
+
+    .form_fields {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 640px;
+    }
+
+    .rePaint {
+        top: 50%;
+    }
+
+    .form_fields > div {
+        padding-bottom: 10px;
+    }
+
+    .field_title {
+        display: inline-block;
+        font-size: 12px;
+        width: 100px;
+        text-align: right;
+        box-sizing: border-box;
+        padding: 0px 5px;
+        color: rgb(94, 109, 130);
+    }
+
+    .selectBox{
+        display: flex;
+    }
+    .selectBox .field_title{
+        width: 93px;
+    }
+
+    .field_value,#baseinfo_remark {
+        box-sizing: border-box;
+        height: 22px;
+        background: none;
+        border-radius: 2px;
+        padding: 2px 5px;
+        outline: 0;
+        border: 1px solid #c0ccda;
+        width: 200px;
+        font-size: 12px;
+        color: #1f2d3d;
+    }
+
+    #diagramContainer {
+        position: relative;
+        height: 100vh;
+        background: white;
+    }
+
+    .item {
+        position: absolute;
+        width: 140px;
+        height: 40px;
+        border: 2px solid gainsboro;
+        border-radius: 3px;
+        line-height: 40px;
+        font-size: 12px;
+        color: #616264;
+        cursor: pointer;
+        text-align: center;
+        background: white;
+
+    }
+
+
+    .end_item, .filter_item {
+        background: #5e6d82;
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        left: 10px;
+        transform: translate(0, -50%);
+    }
+
+    .tool_buttons {
+        display: flex;
+        height: 40px;
+        width: 100%;
+        border-bottom: 1px #d3dce6 solid;
+
+    }
+
+    .tool_buttons > div {
+        position: relative;
+    }
+
+    .tool_buttons > div:after {
+        position: absolute;
+        top: 10px;
+        height: 20px;
+        right: 0;
+        content: '';
+        width: 0;
+        border-right: solid gray 1px;
+
+    }
+
+    .saveInfo {
+        width: 70px;
+        padding: 4px 5px;
+        display: inline-block;
+        border: none;
+        background: #20A0FF;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        border-radius: 2px;
+    }
+
+    .start {
+        display: none;
+        top: 10%;
+        left: 40%;
+    }
+
+    .end_item {
+        background: url("../../../static/jsPlumb/img/end.png") no-repeat;
+        background-size: 20px 20px;
+        cursor: pointer;
+    }
+
+    .start_item {
+        background: url("../../../static/jsPlumb/img/start.png") no-repeat;
+        background-size: 20px 20px;
+
+    }
+
+    .common_item {
+        background: url("../../../static/jsPlumb/img/share.png") no-repeat;
+        background-size: 18px 18px;
+    }
+
+    .end {
+        display: none;
+        top: 50%;
+        left: 40%;
+    }
+
+    .item:hover {
+        background: lightgray;
+        border: 2px solid #20A0FF;
+    }
+
+    .jtk-source-hover {
+        border: 2px solid #89D751;
+        background-color: white;
+        transition: .3s ease-in;
+    }
+
+    .jtk-target-hover {
+        border: 2px solid #EA473A;
+        background-color: white;
+        transition: .3s ease-in;
+    }
+
+    .jtk-drag-hover {
+        border: 2px solid #FF0000;
+        background: gainsboro;
+    }
+</style>
+
+<script>
+    /* 设置全局变量 */
+    var lastId;//配置div 唯一id
+    var isDrop = false;
+    var currentNodeId;
+    var currentRoute;
+    var currentMode;//区分拖拽模式和联线模式
+    var newNodeDone = true;
+    var dragFlag = false;//判断是否拖动
+    var resizeFlag;//标记是否在被拖动状态
+    var isFullScreen = false;//标记当前全屏状态
+    var POSITION_X;
+    var POSITION_Y;
+    var timer;//定时器，防抖动
+    var loadDone = false;//标记是否已经把后台的数据渲染到页面
+    var deletedNodes = [];//删除的后台节点集合
+    var deletedRoutes=[];
+
+
+    /*======全局数据变量======*/
+    var NODESLIST = [];//普通节点集合
+    var CONNECTORlIST = [];//链接集合
+    var BASEINFOLIST ={};//基本信息
+    var CATEGORYLIST = [];//
+    /*=====================*/
+
+    /*=====================方法区========================*/
+    //初始化单据状态的选项
+    function setOrderStatusSelector() {
+        CATEGORYLIST.forEach(function (item, index) {
+            $("#order_state").append("<option value='" + item.choice_id + "' >" + item.label + "</option>");
+            $("#baseinfo_rescind_category").append("<option value='" + item.choice_id + "' >" + item.label + "</option>");
+        })
+    }
+
+    //全屏模式切换
+    function showFullScreen() {
+
+        let element = document.getElementById("container");
+        // 判断是否已经是全屏
+        // 如果是全屏，退出
+        if (isFullScreen) {
+            $(".fullScreenmode_icon").css("background","url('../../../static/jsPlumb/img/fullscreen.png') no-repeat")
+                .css("background-size","contain")
+            $(".full_word").html("全屏模式")
+            $(".fullScreen>div").removeClass("mode_active_class")
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        } else {    // 否则，进入全屏
+            $(".fullScreenmode_icon").css("background","url('../../../static/jsPlumb/img/smallit.png') no-repeat")
+                .css("background-size","contain")
+            $(".full_word").html("网页模式")
+            $(".fullScreen>div").addClass("mode_active_class")
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.webkitRequestFullScreen) {
+                element.webkitRequestFullScreen();
+            } else if (element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if (element.msRequestFullscreen) {
+                // IE11
+                element.msRequestFullscreen();
+            }
+        }
+        // 改变当前全屏状态
+        isFullScreen = !isFullScreen;
+    }
+
+    //弹窗显示
+    function resetWorkflow() {
+        $(".masker").fadeIn();
+        $(".dialog").fadeIn();
+    }
+
+    //删除已有节点和连线
+    function doresetworkflow() {
+        setDragmode();
+        let nodes = document.querySelectorAll(".common_node")
+        for (let i = 0; i < nodes.length; i++) {
+            if ($("#" + nodes[i].id).attr("backendData")) {
+                let id = parseInt(nodes[i].id.split("node")[1]);
+                deletedNodes.push(id)
+            }
+            jsPlumb.remove(nodes[i].id)
+        }
+        cancelDialog();
+    }
+
+    //确认弹窗关闭
+    function cancelDialog() {
+        $(".masker").fadeOut();
+        $(".dialog").fadeOut();
+    }
+
+    function closeBaseInfoPopup() {
+        $(".base_info_container").fadeOut();
+        $("#popup_baseInfo").fadeOut();
+    }
+
+    function hidePopup() {
+        $(".masker").fadeOut();
+        $(".popups").fadeOut();
+    }
+
+    function resetDragFlag(e) {
+        event_p = window.event;
+        POSITION_X = event_p.clientX
+        POSITION_Y = event_p.clientY
+        dragFlag = false
+        resizeFlag = true;
+    }
+
+    //设为只能拖拽，不能连线
+    function setDragmode() {
+        if (currentMode == "dragmode") {
+            return;
+        }
+        currentMode = "dragmode";
+        $(".dragmode>div").addClass("mode_active_class");
+        $(".linkmode>div").removeClass("mode_active_class");
+        jsPlumb.selectEndpoints().setVisible(false, true);
+        jsPlumb.unmakeEverySource();
+        jsPlumb.unmakeEveryTarget();
+        let nodes = document.querySelectorAll(".item")
+        for (let i = 0; i < nodes.length; i++) {
+            let id = nodes[i].id;
+            jsPlumb.setDraggable(id, true)
+        }
+    }
+
+    //只能连线，不能拖拽,禁用新增节点
+    function setLinkmode() {
+        if (currentMode == "linkmode") {
+            return;
+        }
+        currentMode = "linkmode"
+        $(".dragmode>div").removeClass("mode_active_class")
+        $(".linkmode>div").addClass("mode_active_class")
+
+        //selectEndpoints，获取所有endpoint，返回的是一个object，可以统一执行方法
+        jsPlumb.selectEndpoints().setVisible(true, true);
+        let nodes = document.querySelectorAll(".item");
+
+        jsPlumb.makeSource('start', {
+            anchor: "Continuous",
+        })
+        jsPlumb.makeTarget('end', {
+            anchor: "Continuous",
+        })
+        for (let i = 0; i < nodes.length; i++) {
+            let id = nodes[i].id;
+            jsPlumb.setDraggable(id, false)
+            let flag = jsPlumb.getEndpoints(id).length;
+            if (flag == 0 && id != "start" && id != "end") {
+                jsPlumb.addEndpoints(id, [{
+                    anchor: "Top",
+                }, {
+                    anchor: "Bottom",
+                }, {
+                    anchor: "Left",
+                }, {
+                    anchor: "Right",
+                }], {isSource: true, isTarget: false})
+            }
+            jsPlumb.makeTarget(id, {
+                anchor: "Continuous"
+            })
+        }
+    }
+
+    function getNodeInfo(e) {
+        event_p = window.event;
+        x = event_p.clientX
+        y = event_p.clientY
+        if (Math.abs(x - POSITION_X) > 10 || Math.abs(y - POSITION_Y) > 10) {
+            dragFlag = true;
+        }
+        /*===========*/
+        /* if (currentMode == "linkmode") {
+                    //切换显示类型
+                    $(".masker").css("display", "block")
+                    $("#popup_nodeInfo").css("display", "block")
+                    currentNodeId = e.id;
+                }*/
+        /*============*/
+        if (dragFlag) {
+            return;
+        }
+        currentNodeId = e.id;
+        $("#nodeinfo_seq").val($("#" + currentNodeId).attr("seq"));
+        $("#nodeinfo_type").val($("#" + currentNodeId).attr("node_type"))
+        $("#nodeinfo_handleuser").val($("#" + currentNodeId).attr("users"));
+        $("#nodeinfo_name").val($("#" + currentNodeId).attr("nodename"));
+        $("#nodeinfo_passrate").val($("#" + currentNodeId).attr("vote_rate"));
+        $("#nodeinfo_role").val($("#" + currentNodeId).attr("roles"));
+        $("#nodeinfo_action").val($("#" + currentNodeId).attr("action"));
+        $("#nodeinfo_dynamic_user").val($("#" + currentNodeId).attr("dynamic_users"));
+        $("#nodeinfo_position_x").html("X:" + e.style.left)
+        $("#nodeinfo_position_y").html("Y:" + e.style.top)
+        $("#tansfer").prop("checked", $("#" + currentNodeId).attr("is_transferred") == "true");
+        $("#addBefore").prop("checked", $("#" + currentNodeId).attr("is_sign_before") == "true");
+        $("#addAfter").prop("checked", $("#" + currentNodeId).attr("is_sign_after") == "true");
+
+        //切换显示类型
+        $(".masker").css("display", "block")
+        $("#popup_nodeInfo").css("display", "block")
+
+    }
+
+    //删除节点
+    function deleteNode() {
+        if ($("#" + currentNodeId).attr("backendData")) {
+            let id = parseInt(currentNodeId.split("node")[1]);
+            deletedNodes.push(id)
+        }
+        jsPlumb.remove(currentNodeId)
+        hidePopup();
+    }
+    //更新节点信息
+    function updataNodeInfo() {
+        if (!$("#nodeinfo_name").val()) {
+            $("#nodeinfo_name").focus();
+            return
+        }
+
+        $("#" + currentNodeId).html("<div class=\"filter_item  common_item\"></div>" + $("#nodeinfo_name").val())
+        $("#" + currentNodeId).attr("nodename", $("#nodeinfo_name").val())
+        $("#" + currentNodeId).attr("seq", $("#nodeinfo_seq").val())
+        $("#" + currentNodeId).attr("action", $("#nodeinfo_action").val())
+        $("#" + currentNodeId).attr("node_type", $("#nodeinfo_type").val())
+        $("#" + currentNodeId).attr("node_type_label", $("#nodeinfo_type option:selected").text())
+        $("#" + currentNodeId).attr("is_transferred", $("#tansfer").prop("checked"))
+        $("#" + currentNodeId).attr("is_sign_before", $("#addBefore").prop("checked"))
+        $("#" + currentNodeId).attr("is_sign_after", $("#addAfter").prop("checked"))
+        $("#" + currentNodeId).attr("user", $("#nodeinfo_handleuser").val())
+        $("#" + currentNodeId).attr("roles", $("#nodeinfo_role").val())
+        $("#" + currentNodeId).attr("vote_rate", $("#nodeinfo_passrate").val())
+        $("#" + currentNodeId).attr("users", $("#nodeinfo_handleuser").val())
+        $("#" + currentNodeId).attr("dynamic_users", $("#nodeinfo_dynamic_user").val())
+        hidePopup();
+    }
+
+    //删除线
+    function deleteRoute() {
+        jsPlumb.deleteConnection(currentRoute)
+        hidePopup()
+    }
+
+    //更新路由信息
+    function updateRouteInfo() {
+        currentRoute.setParameter("condition", $("#routeinfo_condition").val())
+        currentRoute.setParameter("is_reject", $("#reject_route").prop("checked"))
+        //  currentRoute.setParameter("routeinfo_currentnodename",$("#routeinfo_currentnodename").val())
+        //currentRoute.setParameter("routeinfo_nextnodename",$("#routeinfo_nextnodename").val())
+        currentRoute.setParameter("routeinfo_bill_status", $("#order_state").val())
+        currentRoute.setParameter("routeinfo_bill_status_label", $("#order_state option:selected").text())
+        hidePopup();
+    }
+
+    function updataBaseInfo() {
+        BASEINFOLIST.code = $("#baseinfo_code").val();
+        BASEINFOLIST.bill_status_field = $("#baseinfo_bill_status_field").val();
+        BASEINFOLIST.query = $("#baseinfo_query").val();
+        BASEINFOLIST.remark = $("#baseinfo_remark").val();
+        BASEINFOLIST.name = $("#baseinfo_name").val();
+        BASEINFOLIST.title_formula = $("#baseinfo_title_formula").val();
+        BASEINFOLIST.bill_status_category = $("#baseinfo_bill_status_category").val();
+        BASEINFOLIST.layout = $("#baseinfo_layout").val();
+        BASEINFOLIST.rescind_category = $("#baseinfo_rescind_category").val();
+        BASEINFOLIST.bill_no_field = $("#baseinfo_bill_no_field").val();
+        BASEINFOLIST.bill_node_field = $("#baseinfo_bill_node_field").val();
+        /*==================同步修改标题====================*/
+        $("#workflow_title_code").text(BASEINFOLIST.code)
+        $("#workflow_title_name").text(BASEINFOLIST.name)
+
+        $(".base_info_container").fadeOut();
+        $("#popup_baseInfo").fadeOut();
+    }
+
+    function checkTable() {
+        var url = parent.location.href;
+        var id=url.split("=")[1]
+
+       var p= new Promise(function(reslove){
+            let data=saveInfo();
+           $.ajax({
+               url: "/handler/dynamicDisplay/saveWorkflow",    //请求的url地址
+               async: true,//请求是否异步，默认为异步，这也是ajax重要特性
+               data:JSON.stringify(JSON.stringify(data)),    //参数值
+               dataType:"json",
+               headers: {'Content-Type': 'application/json'},
+               type: "POST",   //请求方式
+               success: function (res) {
+                  reslove(res)
+               }
+           });
+
+       })
+        p.then(res=>{
+            console.log(res)
+            if(res.code==200){
+                parent.location.href='/#/l/workflow_info_page/edit?id='+id
+            }
+        })
+
+    }
+
+        //发送到后台
+        function sendData() {
+          var data= saveInfo();
+            $.ajax({
+                url: "/handler/dynamicDisplay/saveWorkflow",    //请求的url地址
+                async: true,//请求是否异步，默认为异步，这也是ajax重要特性
+                data:JSON.stringify(JSON.stringify(data)),    //参数值
+                dataType:"json",
+                headers: {'Content-Type': 'application/json'},
+                type: "POST",   //请求方式
+                success: function (res) {
+                    if(res.code==200){
+                        console.log(res.message)
+                        $(".success_message").html(res.message)
+                        $(".saveInfo_dialog_right").fadeIn();
+                    }else {
+                        $(".wrong_message").html(res.message)
+                        $(".saveInfo_dialog_wrong").fadeIn();
+                        setTimeout(function () {
+                            $(".saveInfo_dialog_wrong").fadeOut();
+                        },3000)
+                    }
+                    setTimeout(function () {
+                        parent.location.reload();
+                    },2000)
+
+                },
+                error:function (e) {
+                    $(".wrong_message").html(e.responseJSON.message)
+                    $(".saveInfo_dialog_wrong").fadeIn();
+                    setTimeout(function () {
+                        $(".saveInfo_dialog_wrong").fadeOut();
+                    },3000)
+                }
+            });
+    }
+
+
+
+    //保存所有信息发送给后端
+    function saveInfo() {
+        console.time("耗时");
+        let nodes = document.querySelectorAll(".common_node")
+        let conns = jsPlumb.getAllConnections();
+        let result = {};
+        let nodesList = [];
+        let connsList = [];
+        nodes.forEach(function (item, index) {
+            let nodeObj = {};
+            nodeObj["is_transferred"] = item.getAttribute("is_transferred")
+            nodeObj["is_sign_before"] = item.getAttribute("is_sign_before")
+            nodeObj["node_type_label"] = item.getAttribute("node_type_label")
+            nodeObj["roles"] = item.getAttribute("roles")
+            nodeObj["is_sign_after"] = item.getAttribute("is_sign_after")
+            nodeObj["users"] = item.getAttribute("users")
+            nodeObj["node_type"] = item.getAttribute("node_type")
+            nodeObj["name"] = item.getAttribute("nodename");
+            nodeObj["jsplumb_x"] =parseInt( item.style.left.split('px')[0]);
+            nodeObj["jsplumb_y"] =parseInt( item.style.top.split('px')[0]);
+            nodeObj["id"] = item.getAttribute("id")
+            nodeObj["action"] = item.getAttribute("action")
+            nodeObj["vote_rate"] = item.getAttribute("vote_rate")
+            nodeObj["seq"] = item.getAttribute("seq")
+            nodeObj["is_transferred"] = item.getAttribute("is_transferred")
+            nodeObj["dynamic_users"] = item.getAttribute("dynamic_users")
+            nodesList[index] = nodeObj;
+        })
+        conns.forEach(function (item, index) {
+            let connObj = {};
+            connObj["next_node_id"] = item.targetId === "end" ? -1 : item.targetId;
+            connObj["node_id"] = item.sourceId === "start" ? 0 : item.sourceId;
+            connObj["is_reject"] = item.getParameter("is_reject");
+            connObj["id"] = item.getParameter("id");
+            connObj["condition"] = item.getParameter("condition");
+            connObj["bill_status"] = item.getParameter("routeinfo_bill_status")
+            connObj["bill_status_label"] = item.getParameter("routeinfo_bill_status_label")
+            connObj["next_node_name"] = $("#" + item.targetId).attr("nodename") == undefined ? "结束" : $("#" + item.targetId).attr("nodename");
+            connObj["node_name"] = $("#" + item.sourceId).attr("nodename") == undefined ? "开始" : $("#" + item.sourceId).attr("nodename");
+            connsList[index] = connObj;
+        })
+
+
+        BASEINFOLIST.start_x=parseInt($(".start").css("left"))
+        BASEINFOLIST.start_y=parseInt($(".start").css("top"))
+        BASEINFOLIST.end_x=parseInt($("#end").css("left"))
+        BASEINFOLIST.end_y=parseInt($("#end").css("top"))
+        BASEINFOLIST.container_height=$("#diagramContainer").css("height")
+
+        result["baseinfo"] = BASEINFOLIST;
+        result["workflowNodes"] = nodesList;
+        result["workflowRoute"] = connsList;
+        result["deletedNodes"] = deletedNodes;
+        result["deletedRoutes"] = deletedRoutes;
+        console.log(result)
+
+        //sendData(result)
+        console.timeEnd("耗时")
+        return result;
+    }
+
+    //生成新的节点
+    function generateItem(e) {
+        //切换到拖拉模式
+        setDragmode();
+        newNodeDone = false;
+        isDrop = true;
+        e = e || window.event;//要用event这个对象来获取鼠标的位置
+        //=====生成div====
+        var childdiv = $('<div class="common_node" onmousedown="resetDragFlag(this)" onmouseup="getNodeInfo(this)"> <div class="filter_item  common_item"></div>新节点</div>');
+        lastId = 'child' + getTimeStamp();
+        childdiv.attr('id', lastId);
+        childdiv.addClass('item');    //添加css样式
+        childdiv.appendTo($("#diagramContainer"))
+    }
+
+    function closePopup() {
+        $(".masker").fadeOut();
+        $(".popups").fadeOut();
+    }
+
+    //显示基本信息弹窗
+    function showBaseInfo() {
+        initBaseInfo();
+        $(".base_info_container").fadeIn();
+        $("#popup_baseInfo").css("display", "block")
+    }
+
+    //初始化基本jsPlumb配置
+    function initJsplumb() {
+        jsPlumb.importDefaults({
+            Container: "#diagramContainer",
+            DragOptions: {cursor: 'pointer', zIndex: 2000},
+            Endpoint: ["Rectangle", {width: 10, height: 10}],
+            EndpointStyle: {fill: "#F4F6FC", stroke: "#20A0FF"},
+            ConnectionsDetachable: false,//连接是否可拆卸（使用鼠标），默认 true
+            ReattachConnections: true,//拆卸后自动重连
+            MaxConnections: 5, // 设置连接点最多可以连接几条线
+            PaintStyle: {
+                strokeWidth: 2,//线的宽度
+                stroke: "#20A0FF",//线色
+            },
+            HoverPaintStyle: {
+                stroke: "#FF0000", lineWidth: 2, gradient: {     //渐变色
+                    stops: [[0, "#89D751"]]
+                }
+            },
+            Connector: ["Flowchart", {
+                gap: 5,//gap：可选，默认为0px。在连接线的一端和连接的元素之间指定一个间隙。
+                cornerRadius: 5,//连线转向处的圆角，默认 0
+                stub: 0,//连线两端短截线的最小长度
+                alwaysRespectStubs: false,//true–固定短截线长度；false–当两个元件彼此非常接近（小于两个短截线的总和），则调整短截线。默认 false,
+                midpoint: 0.5//设置连线的中点位置，默认 0.5
+            }],
+            ConnectionOverlays: [
+                ["Arrow", {
+                    width: 15,
+                    length: 15,
+                    location: 1,//在线条上的位置，0 在起点，1 在终点，默认 0.5
+                    foldback: 1,//箭头尾部缩进程度，设置为 1 则尾部不缩进，小于 1 向内缩进，大于 1 向外突出，小于等于 0 取默认值。 默认 0.623
+                    direction: 1,//方向，从起点指向终点为 1，反之为 -1
+                    visible: true,// Boolean 是否可见，默认 true
+                }]
+            ]
+        });
+
+
+        jsPlumb.draggable('popup_nodeInfo', {containment: '.masker'})
+        jsPlumb.draggable('popup_routeInfo', {containment: '.masker'})
+
+    }
+
+    /*=============全局事件===============*/
+    //获取时间戳，毫秒级,作节点id唯一标识
+    function getTimeStamp() {
+        return new Date().getTime();
+    }
+
+    //阻止冒泡
+    $(function () {
+        $(".popups").click(function (event) {
+            event.stopPropagation();
+        });
+    });
+    //屏蔽右键默认菜单
+    document.oncontextmenu = function (event) {
+        event.preventDefault();
+    };
+
+    $(document).mousemove(function (e) {
+        /*=================*/
+        if (resizeFlag) {
+            let scrollTop = $(document).scrollTop();
+            let currentHeight = parseInt($("#diagramContainer").css("height"));
+            //防抖处理，只执行最后一次
+            clearTimeout(timer)
+            timer = setTimeout(function () {
+                if (e.clientY + 100 + scrollTop > currentHeight) {
+                    $("html,body").animate({scrollTop: (scrollTop + 300) + "px"});
+                    $("#diagramContainer").css("height", (currentHeight + 300) + "px")
+                }
+            }, 300)
+        }
+
+        /*======================*/
+        //是否为可移动状态
+        if (isDrop) {
+            var moveX;//得到距离左边移动距离
+            var moveY;//得到距离上边移动距离
+
+            if (isFullScreen) {
+                moveX = e.clientX - 60;//得到距离左边移动距离
+                moveY = e.clientY - 20;//得到距离上边移动距离
+
+            } else {
+                moveX = e.clientX - 60;//得到距离左边移动距离
+                moveY = e.clientY - 70;//得到距离上边移动距离
+            }
+
+            $("#" + lastId).css({"top": moveY + "px", "left": moveX + "px"})
+        } else {
+            return;
+        }
+    })
+
+    function resetNodePanel() {
+        event_p = window.event;
+        $("#nodeinfo_seq").val("");
+        $("#nodeinfo_type").val("action")
+        $("#nodeinfo_handleuser").val("");
+        $("#nodeinfo_name").val("新节点");
+        $("#nodeinfo_passrate").val("");
+        $("#nodeinfo_dynamic_user").val("");
+        $("#nodeinfo_role").val("");
+        $("#nodeinfo_action").val("");
+        $("#nodeinfo_position_x").html("X:" + event_p.clientX + "px")
+        $("#nodeinfo_position_y").html("Y:" + event_p.clientY + "px")
+        $("#tansfer").prop("checked", false);
+        $("#addBefore").prop("checked", false);
+        $("#addAfter").prop("checked", false);
+    }
+
+    function resetRoutePanel(obj) {
+        currentRoute = obj.connection;
+
+        $("#routeinfo_nextnodename").val($("#" + obj.targetId).attr("nodename") == null ? "结束" : $("#" + obj.targetId).attr("nodename"))
+        $("#routeinfo_currentnodename").val($("#" + obj.sourceId).attr("nodename") == null ? "开始" : $("#" + obj.sourceId).attr("nodename"))
+        $("#routeinfo_condition").val("")
+        $("#reject_route").prop("checked", false);
+        $("#order_state").val(CATEGORYLIST.length!=0?CATEGORYLIST[0].choice_id:'');
+
+        currentRoute.setParameter("routeinfo_currentnodename", $("#routeinfo_currentnodename").val())
+        currentRoute.setParameter("routeinfo_nextnodename", $("#routeinfo_nextnodename").val())
+        currentRoute.setParameter("routeinfo_bill_status", CATEGORYLIST.length!=0?CATEGORYLIST[0].choice_id:'')
+        currentRoute.setParameter("routeinfo_bill_status_label", CATEGORYLIST.length!=0?CATEGORYLIST[0].label:'')
+        currentRoute.setParameter("condition", "")
+
+    }
+
+    $(document).mouseup(function (e) {
+
+        resizeFlag = false
+        //是否为可移动状态
+        if (isDrop) {
+            //切换显示类型
+            resetNodePanel();
+            $(".masker").css("display", "block")
+            $("#popup_nodeInfo").css("display", "block")
+            $("#nodeinfo_name").focus()
+            $("#" + lastId).attr("nodename", "新节点");
+            $("#" + lastId).attr("node_type", "action");
+            jsPlumb.draggable(lastId, {containment: 'parent', grid: [10, 10]})
+            currentNodeId = lastId;
+            isDrop = false
+        } else {
+            return;
+        }
+    })
+    /*============处理全屏切换兼容性 start============*/
+    document.addEventListener("fullscreenchange", function (e) {
+        if (document.fullscreenElement) {
+            console.log('进入全屏')
+        } else {
+            console.log('退出全屏')
+            $(".fullScreenmode_icon").css("background","url('../../../static/jsPlumb/img/fullscreen.png') no-repeat")
+                .css("background-size","contain")
+            $(".full_word").html("全屏模式")
+            $(".fullScreen>div").removeClass("mode_active_class");
+            isFullScreen = false;
+
+        }
+    });
+    document.addEventListener("mozfullscreenchange", function (e) {
+        if (document.fullscreenElement) {
+
+            console.log('进入全屏')
+        } else {
+            console.log('退出全屏')
+            $(".fullScreen>div").removeClass("mode_active_class");
+            isFullScreen = false;
+        }
+    });
+    document.addEventListener("webkitfullscreenchange", function (e) {
+        if (document.fullscreenElement) {
+            console.log('进入全屏')
+        } else {
+            console.log('退出全屏')
+            $(".fullScreenmode_icon").css("background","url('../../../static/jsPlumb/img/fullscreen.png') no-repeat")
+                .css("background-size","contain")
+            $(".full_word").html("全屏模式")
+            $(".fullScreen>div").removeClass("mode_active_class");
+            isFullScreen = false;
+
+        }
+    });
+    document.addEventListener("msfullscreenchange", function (e) {
+        if (document.fullscreenElement) {
+            console.log('进入全屏')
+        } else {
+            console.log('退出全屏')
+            $(".fullScreenmode_icon").css("background","url('../../../static/jsPlumb/img/fullscreen.png') no-repeat")
+                .css("background-size","contain")
+            $(".full_word").html("全屏模式")
+            $(".fullScreen>div").removeClass("mode_active_class");
+            isFullScreen = false;
+
+        }
+    });
+
+    /*============处理全屏切换兼容性 end============*/
+    //加载workflow，绘制节点,绘制连线
+    function initWorkflow() {
+        initTitle();
+        initWorkflowNode();
+        setOrderStatusSelector();
+        initConnections();
+        jsPlumb.repaintEverything()
+    }
+
+    function initTitle() {
+        $("#workflow_title_code").html(BASEINFOLIST.code)
+        $("#workflow_title_name").html(BASEINFOLIST.name)
+    }
+
+    //初始化baseinfo
+    function initBaseInfo() {
+        $("#baseinfo_code").val(BASEINFOLIST.code)
+        $("#baseinfo_name").val(BASEINFOLIST.name)
+        $("#baseinfo_bill_no_field").val(BASEINFOLIST.bill_no_field)
+        $("#baseinfo_query").val(BASEINFOLIST.query)
+        $("#baseinfo_bill_node_field").val(BASEINFOLIST.bill_node_field)
+        $("#baseinfo_remark").val(BASEINFOLIST.remark)
+        $("#baseinfo_rescind_category").val(BASEINFOLIST.rescind_category)
+        $("#baseinfo_layout").val(BASEINFOLIST.layout)
+        $("#baseinfo_bill_no_field").val(BASEINFOLIST.bill_no_field)
+        $("#baseinfo_title_formula").val(BASEINFOLIST.title_formula)
+        $("#baseinfo_bill_status_category").val(BASEINFOLIST.bill_status_category)
+        $("#baseinfo_bill_status_field").val(BASEINFOLIST.bill_status_field)
+
+    }
+
+    //初始化数据库节点
+    function initWorkflowNode() {
+        $("#start").css({top:BASEINFOLIST.start_y+"px",left:BASEINFOLIST.start_x+"px"}).css("display", "block")
+        $("#end").css({top:BASEINFOLIST.end_y+"px",left:BASEINFOLIST.end_x+"px"}).css("display", "block")
+        jsPlumb.draggable('start', {containment: 'parent', grid: [10, 10]})
+        jsPlumb.draggable('end', {containment: 'parent', grid: [10, 10]})
+        jsPlumb.makeSource('start', {
+            anchor: "Continuous",
+        })
+        jsPlumb.makeTarget('end', {
+            anchor: "Continuous",
+        })
+        $("#diagramContainer").css("height",BASEINFOLIST.container_height)
+
+        NODESLIST.forEach(function (item, index) {
+            var childdiv = $('<div class="common_node" onmousedown="resetDragFlag(this)" onmouseup="getNodeInfo(this)"> <div class="filter_item  common_item"></div>' + item.name + '</div>');
+            childdiv.attr('dynamic_users', item.dynamic_users);
+            childdiv.attr('is_sign_before', item.is_sign_before);
+            childdiv.attr('workflow', item.workflow);
+            childdiv.attr('node_type_label', item.node_type_label);
+            childdiv.attr('vote_rate', item.vote_rate);
+            childdiv.attr('nodename', item.name);
+            childdiv.attr('roles', item.roles);
+            childdiv.attr('insert_user', item.insert_user);
+            childdiv.attr('is_sign_after', item.is_sign_after);
+            childdiv.attr('users', item.users);
+            childdiv.attr('update_user_common_name', item.update_user_common_name);
+            childdiv.attr('domain_name', item.domain_name);
+            childdiv.attr('node_type', item.node_type);
+            childdiv.attr('update_user', item.update_user);
+            childdiv.attr('is_transferred', item.is_transferred);
+            childdiv.attr('seq', item.seq);
+            childdiv.attr('id', 'node' + item.id);
+            childdiv.attr('action', item.action);
+            childdiv.attr('backendData', true);//标记是数据后台给的数据
+            childdiv.addClass('item');    //添加css样式
+            childdiv.appendTo($("#diagramContainer"))
+            childdiv.css({top: (item.jsplumb_y + 'px'), left: (item.jsplumb_x + 'px')})
+            jsPlumb.draggable(childdiv, {containment: 'parent', grid: [10, 10]})
+
+            jsPlumb.makeTarget('node' + item.id, {
+                anchor: "Continuous"
+            })
+        })
+    }
+
+    function initConnections() {
+        var option={
+            anchor: ["AutoDefault"]
+        }
+
+        CONNECTORlIST.forEach(function (item, index) {
+            var newlyconn;
+            if (item.node == null) {
+                newlyconn = jsPlumb.connect({
+                    source: 'start',
+                    target: 'node' + item.next_node
+                })
+
+            } else if (item.next_node == null) {
+                newlyconn = jsPlumb.connect({
+                    source: 'node' + item.node,
+                    target: "end"
+                })
+            } else {
+
+                newlyconn = jsPlumb.connect({
+                    source: 'node' + item.node,
+                    target: 'node' + item.next_node,
+                },option)
+            }
+            newlyconn.setParameter("condition", item.condition)
+            newlyconn.setParameter("is_reject", item.is_reject)
+            newlyconn.setParameter("routeinfo_currentnodename", item.node__name)
+            newlyconn.setParameter("routeinfo_nextnodename", item.next_node__name)
+            newlyconn.setParameter("routeinfo_bill_status", item.bill_status)
+            newlyconn.setParameter("routeinfo_bill_status_label", item.bill_status_label)
+            newlyconn.setParameter("backenddata", true)
+            newlyconn.setParameter("id", item.id)
+
+
+        })
+        let nodes = document.querySelectorAll(".item");
+
+        for (let i = 0; i < nodes.length; i++) {
+            let id = nodes[i].id;
+            if (id != "start" && id != "end") {
+                jsPlumb.addEndpoints(id, [{
+                    anchor: "Top",
+                }, {
+                    anchor: "Bottom",
+                }, {
+                    anchor: "Left",
+                }, {
+                    anchor: "Right",
+                }], {isSource: true, isTarget: false})
+            }
+        }
+    }
+
+    //jsPlumb启动
+    jsPlumb.ready(function () {
+        initJsplumb();
+
+        setTimeout(function () {
+
+            initWorkflow();
+            loadDone = true
+            setDragmode();
+        }, 1000)
+        //页面启动时默认为拖拽模式
+
+        jsPlumb.bind('click', function (conn, originalEvent) {
+            currentRoute = conn;
+            //绑定参数
+            var current_nodename = $("#" + conn.sourceId).attr("nodeName")
+            var next_nodename = $("#" + conn.targetId).attr("nodeName")
+            var routeinfo_condition = conn.getParameter("condition")
+            var routeinfo_isreject = conn.getParameter("is_reject")
+            var routeinfo_bill_status = conn.getParameter("routeinfo_bill_status")
+
+            $("#routeinfo_nextnodename").val(next_nodename == null ? '结束' : next_nodename)
+            $("#routeinfo_currentnodename").val(current_nodename == null ? "开始" : current_nodename)
+            $("#routeinfo_condition").val(routeinfo_condition)
+            $("#reject_route").prop("checked", routeinfo_isreject);
+            $("#order_state").val(routeinfo_bill_status)
+
+            $(".masker").fadeIn();
+            $("#popup_routeInfo").fadeIn();
+        })
+
+        //connection（info, originalEvent）- 通知连接建立，建立连接时弹窗设置连线信息
+        jsPlumb.bind("connection", function (info) {
+            if (loadDone) {
+                resetRoutePanel(info);
+                info.connection.setParameter("id","child"+getTimeStamp())
+                $(".masker").fadeIn();
+                $("#popup_routeInfo").fadeIn();
+            }
+        });
+        //- 通知连接断开
+        jsPlumb.bind("connectionDetached", function (info, originalEvent) {
+            if(info.connection.getParameter("backenddata")){
+                deletedRoutes.push(info.connection.getParameter("id"))
+            }
+        })
+        //- 通知已将现有连接的源或目标端点拖动到某个新位置
+        jsPlumb.bind("connectionMoved", function (info, originalEvent) {
+            console.log("connectionMoved")
+            console.log(originalEvent)
+        })
+        //创建连接线之前检查,true在其它已注册事件之前触发
+        //isSame 阻止重复连接，foreach所有链接
+        jsPlumb.bind('beforeDrop', function (conn) {
+            /*         var list = jsPlumb.getAllConnections();
+                 var isSame = false
+                   try {
+                       list.forEach(function (item, index) {
+                           if (item.sourceId == conn.sourceId && conn.targetId == item.targetId) {
+                               throw new Error("已存有该指向的链接");
+                           }
+                       })
+                   } catch (e) {
+                       console.error(e)
+                       isSame = true
+                   }*/
+            var isBan=(conn.sourceId=="start"&&conn.targetId=="end")
+            if (conn.sourceId === conn.targetId||isBan) {
+                console.warn("非法链接：链接自身或重复链接")
+                return false
+            } else {
+                return true
+            }
+        }, true);
+        //connectionAborted（connection，originalEvent）在连接到端点或目标元素之前放弃拖动连接
+        //connectionDrag（connection）- 正在拖动现有连接
+        //beforeDrop（info）- 删除新连接或现有连接时触发此事件
+        //beforeDetach（connection）- 断开连接时触发此事件。connection参数为刚断开的Connection。如果此拦截器返回false将会中止连接断开。
+    })
+</script>
+</html>
